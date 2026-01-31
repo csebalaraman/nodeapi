@@ -6,7 +6,15 @@ const { Op } = require('sequelize');
 /* ================= REGISTER ================= */
 exports.register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
+
+    // Validate role (case-insensitive)
+    const validRoles = ['user', 'admin', 'superadmin'];
+    let userRole = 'user';
+    if (role && typeof role === 'string') {
+      const normalized = role.trim().toLowerCase();
+      if (validRoles.includes(normalized)) userRole = normalized;
+    }
 
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
@@ -17,7 +25,7 @@ exports.register = async (req, res) => {
     }
 
     const hash = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, password: hash });
+    const user = await User.create({ name, email, password: hash, role: userRole });
 
     res.status(201).json({
       success: true,
@@ -25,7 +33,8 @@ exports.register = async (req, res) => {
       user: {
         id: user.id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
 
@@ -63,7 +72,8 @@ exports.login = async (req, res) => {
       user: {
         id: user.id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
 
