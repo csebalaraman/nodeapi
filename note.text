@@ -1,0 +1,38 @@
+npm init -y
+npm install express sequelize sequelize-cli mysql2 bcryptjs jsonwebtoken dotenv
+npm install nodemon --save-dev
+
+
+npx sequelize-cli init
+
+
+
+npx sequelize-cli model:generate --name User --attributes name:string,email:string,password:string
+
+npx sequelize-cli model:generate --name Product --attributes name:string,price:decimal,userId:integer
+
+
+
+npx sequelize-cli db:migrate
+node server.js
+
+
+
+# App
+APP_NAME=ExpressSequelizeAuth
+APP_PORT=3000
+NODE_ENV=development
+
+# Database
+DB_HOST=127.0.0.1
+DB_USER=debian-sys-maint
+DB_PASS=IfTKN0HD9SY1fuTu
+DB_NAME=express_auth_db
+DB_DIALECT=mysql
+
+# JWT
+JWT_SECRET=super_secret_jwt_key_12345
+JWT_EXPIRES_IN=1d
+
+# Sequelize
+SEQUELIZE_LOGGING=false
