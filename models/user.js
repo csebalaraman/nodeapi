@@ -19,9 +19,13 @@ module.exports = (sequelize, DataTypes) => {
     email: DataTypes.STRING,
     password: DataTypes.STRING,
     role: {
-      type: DataTypes.ENUM('user', 'admin', 'superadmin'),
-      defaultValue: 'user'
-    }
+      type: DataTypes.ENUM('PHARMACY_ADMIN', 'STAFF', 'SUPER_ADMIN'),
+      defaultValue: 'PHARMACY_ADMIN'
+    },
+    otp: DataTypes.STRING,
+    otpExpiresAt: DataTypes.DATE,
+    resetToken: DataTypes.STRING,
+    resetTokenExpiresAt: DataTypes.DATE
   }, {
     sequelize,
     modelName: 'User',

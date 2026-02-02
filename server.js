@@ -3,6 +3,11 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
+// ✅ ADD HERE (top, before routes)
+app.use(express.json({ strict: true }));
+app.use(express.urlencoded({ extended: true }));
+
+
 app.use(cors()); // 👈 ALLOW ALL ORIGINS
 app.use(express.json());
 app.use(express.json());
