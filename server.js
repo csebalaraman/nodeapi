@@ -17,6 +17,7 @@ app.use('/uploads', express.static('uploads'));
 
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/product'));
+app.use('/api/inventory', require('./routes/inventoryRoutes'));
 
 
 app.listen(3000, () => console.log('Server running on port 3000'));
