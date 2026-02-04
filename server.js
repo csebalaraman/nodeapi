@@ -6,11 +6,11 @@ const app = express();
 
 /* ================= CORS ================= */
 app.use(cors({
-  origin: [
-    'https://warm-sunburst-5f7d7c.netlify.app'
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: [
+    "http://18.60.129.193:3000",
+    "https://warm-sunburst-5f7d7c.netlify.app"
+  ],
+  credentials: true
 }));
 
 /* ================= BODY PARSER ================= */
