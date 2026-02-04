@@ -25,9 +25,9 @@ const sslOptions = {
   cert: fs.readFileSync('/home/ec2-user/ssl/cert.pem'),
 };
 
-app.listen(3000, () => console.log('Server running on port 3000'));
-
-
+https.createServer(sslOptions, app).listen(443, () => {
+  console.log('HTTPS Server running on https://18.60.129.193');
+});
 
 
 
