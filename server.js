@@ -1,24 +1,29 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+
 const app = express();
 
-// ✅ ADD HERE (top, before routes)
+/* ================= CORS ================= */
+app.use(cors({
+  origin: [
+    'https://warm-sunburst-5f7d7c.netlify.app'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+/* ================= BODY PARSER ================= */
 app.use(express.json({ strict: true }));
 app.use(express.urlencoded({ extended: true }));
 
-
-app.use(cors()); // 👈 ALLOW ALL ORIGINS
-app.use(express.json());
-app.use(express.json());
-
-// 👇 REQUIRED to access uploaded images
+/* ================= STATIC ================= */
 app.use('/uploads', express.static('uploads'));
 
+/* ================= ROUTES ================= */
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/product'));
 app.use('/api/inventory', require('./routes/inventoryRoutes'));
-
 
 app.listen(3000, () => console.log('Server running on port 3000'));
 

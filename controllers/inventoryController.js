@@ -167,3 +167,36 @@ exports.getProducts = async (req, res) => {
   }
 };
 
+
+
+/* ================= GET SINGLE PRODUCT ================= */
+exports.getSingleProduct = async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    const product = await Inventory.findOne({
+      where: {
+        product_id: productId,
+        user_id: req.user.id
+      }
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: product
+    });
+
+  } catch (err) {
+    console.error('GET SINGLE PRODUCT ERROR 👉', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+

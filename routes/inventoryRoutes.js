@@ -9,6 +9,7 @@ router.put('/update-product', auth, c.updateProduct);
 router.delete('/delete-product', auth, c.deleteProduct);
 router.get('/filter', auth, c.filterProducts);
 router.get('/get-products', auth, c.getProducts);
+router.get('/get-product/:productId', auth, c.getSingleProduct);
 
 
 module.exports = router;
