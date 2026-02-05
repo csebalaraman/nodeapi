@@ -15,6 +15,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/product'));
 app.use('/api/inventory', require('./routes/inventoryRoutes'));
+app.use('/api/customers', require('./routes/customerRoutes'));
 
 /* ================= SERVER ================= */
 const PORT = process.env.PORT || 3000;
