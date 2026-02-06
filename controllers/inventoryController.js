@@ -1,5 +1,9 @@
 const { Inventory } = require('../models');
-const { Op } = require('sequelize');
+const { Op, fn, col, literal } = require('sequelize');
+const {
+  PHARMACY_CATEGORIES,
+  STOCK_STATUS
+} = require('../constants/inventory');
 
 
 /* ================= HELPER FUNCTION ================= */
@@ -114,30 +118,139 @@ exports.deleteProduct = async (req, res) => {
 };
 
 
+// /* ================= FILTER PRODUCTS ================= */
+// exports.filterProducts = async (req, res) => {
+//   try {
+//     const { category, stock } = req.query;
+
+//     let where = { user_id: req.user.id };
+
+//     if (category) {
+//       where.category = category;
+//     }
+
+//     if (stock === 'in-stock') {
+//       where.stock_quantity = { [Op.gt]: 0 };
+//     }
+
+//     if (stock === 'out-of-stock') {
+//       where.stock_quantity = 0;
+//     }
+
+//     const products = await Inventory.findAll({ where });
+
+//     res.json({
+//       success: true,
+//       data: products
+//     });
+
+//   } catch (err) {
+//     console.error('FILTER ERROR 👉', err);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// };
+
+
 /* ================= FILTER PRODUCTS ================= */
 exports.filterProducts = async (req, res) => {
   try {
-    const { category, stock } = req.query;
+    const {
+      search = '',
+      category = 'all',
+      stock = 'all',
+      page = 1,
+      limit = 10
+    } = req.query;
 
-    let where = { user_id: req.user.id };
+    const offset = (page - 1) * limit;
 
-    if (category) {
+    let where = {
+      user_id: req.user.id
+    };
+
+    /* 🔍 Search (product name / product id) */
+    if (search) {
+      where[Op.or] = [
+        { product_name: { [Op.like]: `%${search}%` } },
+        { product_id: { [Op.like]: `%${search}%` } }
+      ];
+    }
+
+    /* 📦 Category filter */
+    if (category !== 'all') {
       where.category = category;
     }
 
-    if (stock === 'in-stock') {
-      where.stock_quantity = { [Op.gt]: 0 };
+    /* 📊 Stock filter */
+    if (stock !== 'all') {
+      switch (stock) {
+        case 'in_stock':
+          where.stock_quantity = { [Op.gt]: 10 };
+          break;
+
+        case 'low_stock':
+          where.stock_quantity = { [Op.between]: [1, 10] };
+          break;
+
+        case 'out_of_stock':
+          where.stock_quantity = 0;
+          break;
+
+        case 'expired':
+          where.expiry_date = { [Op.lt]: new Date() };
+          break;
+      }
     }
 
-    if (stock === 'out-of-stock') {
-      where.stock_quantity = 0;
-    }
+    /* 📄 Fetch data */
+    const { rows, count } = await Inventory.findAndCountAll({
+      where,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [['createdAt', 'DESC']] // ✅ FIXED
+    });
 
-    const products = await Inventory.findAll({ where });
+    /* 📊 Dashboard summary (image-based cards support) */
+    const summary = await Inventory.findOne({
+      where: { user_id: req.user.id },
+      attributes: [
+        [fn('COUNT', col('id')), 'total_products'],
+        [fn('SUM', col('purchase_price')), 'total_stock_value'],
+        [
+          fn(
+            'SUM',
+            literal('CASE WHEN stock_quantity BETWEEN 1 AND 10 THEN 1 ELSE 0 END')
+          ),
+          'low_stock_items'
+        ],
+        [
+          fn(
+            'SUM',
+            literal('CASE WHEN expiry_date < CURDATE() THEN 1 ELSE 0 END')
+          ),
+          'expired_items'
+        ]
+      ],
+      raw: true
+    });
 
     res.json({
       success: true,
-      data: products
+
+      /* list */
+      total: count,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      data: rows,
+
+      /* extra for UI */
+      meta: {
+        categories: PHARMACY_CATEGORIES,
+        stock_status: STOCK_STATUS
+      },
+
+      /* dashboard cards */
+      summary
     });
 
   } catch (err) {
@@ -145,7 +258,6 @@ exports.filterProducts = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-
 
 /* ================= GET ALL PRODUCTS ================= */
 exports.getProducts = async (req, res) => {
