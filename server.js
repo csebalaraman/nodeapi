@@ -20,6 +20,6 @@ app.use('/api/customers', require('./routes/customerRoutes'));
 /* ================= SERVER ================= */
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, '18.60.129.193', () => {
-  console.log(`Node API running on https://18.60.129.193`);
+app.listen(PORT, '127.0.0.1', () => {
+  console.log(`Node API running on http://127.0.0.1:${PORT}`);
 });
