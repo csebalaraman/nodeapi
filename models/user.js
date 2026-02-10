@@ -22,6 +22,20 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM('PHARMACY_ADMIN', 'STAFF', 'SUPER_ADMIN'),
       defaultValue: 'PHARMACY_ADMIN'
     },
+      staff_role: {
+    type: DataTypes.ENUM('Pharmacist', 'Cashier', 'Inventory Staff'),
+    allowNull: true
+  },
+   status: {
+    type: DataTypes.ENUM('ACTIVE', 'INACTIVE'),
+    defaultValue: 'ACTIVE'
+  },
+    phone: DataTypes.STRING,
+    status: {
+      type: DataTypes.ENUM('ACTIVE', 'INACTIVE'),
+      defaultValue: 'ACTIVE'
+    },
+    createdBy: DataTypes.INTEGER,
     otp: DataTypes.STRING,
     otpExpiresAt: DataTypes.DATE,
     resetToken: DataTypes.STRING,

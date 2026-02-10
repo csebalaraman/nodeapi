@@ -1,7 +1,7 @@
 module.exports = (allowedRoles) => {
   return (req, res, next) => {
     if (!req.user) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      return res.status(401).json({ message: 'Unauthorized sdfsdf' });
     }
 
     // Get user role from database for current request

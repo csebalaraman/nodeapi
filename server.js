@@ -16,6 +16,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/product'));
 app.use('/api/inventory', require('./routes/inventoryRoutes'));
 app.use('/api/customers', require('./routes/customerRoutes'));
+app.use('/api/staff', require('./routes/staffRoutes'));
 
 /* ================= SERVER ================= */
 const PORT = process.env.PORT || 3000;

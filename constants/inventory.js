@@ -30,4 +30,17 @@ const STOCK_STATUS = [
   { key: "expired", label: "Expired" }
 ];
 
-module.exports = { PHARMACY_CATEGORIES, STOCK_STATUS };
+const ROLE_STAFF = [
+{ key: "all", label: "All Roles" },
+{ key: "pharmacist", label: "Pharmacist" },
+{ key: "assistant", label: "Assistant" },
+{ key: "cashier", label: "Cashier" },
+];
+
+const STAFF_STATUS = [
+  { key: "all", label: "All" },
+  { key: "active", label: "Active" },
+  { key: "inactive", label: "Inactive" }
+];
+
+module.exports = { PHARMACY_CATEGORIES, STOCK_STATUS, ROLE_STAFF, STAFF_STATUS };
