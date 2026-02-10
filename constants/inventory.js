@@ -27,7 +27,8 @@ const STOCK_STATUS = [
   { key: "in_stock", label: "In Stock" },
   { key: "low_stock", label: "Low Stock" },
   { key: "out_of_stock", label: "Out of Stock" },
-  { key: "expired", label: "Expired" }
+  { key: "expired", label: "Expired" },
+  { key: "expiring_soon", label: "Expiring Soon" }
 ];
 
 const ROLE_STAFF = [

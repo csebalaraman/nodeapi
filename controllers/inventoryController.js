@@ -181,16 +181,16 @@ exports.filterProducts = async (req, res) => {
       where.category = category;
     }
 
-    /* 📊 Stock filter */
+    /* 📊 Stock filter (BASED ON STATUS) */
     if (stock !== 'all') {
       switch (stock) {
-        case 'in_stock':
-          where.stock_quantity = { [Op.gt]: 10 };
-          break;
+      case 'in_stock':
+        where.stock_quantity = { [Op.gt]: 20 };
+        break;
 
-        case 'low_stock':
-          where.stock_quantity = { [Op.between]: [1, 10] };
-          break;
+      case 'low_stock':
+        where.stock_quantity = { [Op.between]: [1, 20] };
+        break;
 
         case 'out_of_stock':
           where.stock_quantity = 0;
@@ -199,18 +199,44 @@ exports.filterProducts = async (req, res) => {
         case 'expired':
           where.expiry_date = { [Op.lt]: new Date() };
           break;
+
+        case 'expiring_soon':
+          where.expiry_date = {
+            [Op.between]: [
+              new Date(),
+              new Date(new Date().setDate(new Date().getDate() + 30))
+            ]
+          };
+          break;
       }
     }
 
-    /* 📄 Fetch data */
+    /* 📄 Fetch products with dynamic status */
     const { rows, count } = await Inventory.findAndCountAll({
       where,
       limit: parseInt(limit),
       offset: parseInt(offset),
-      order: [['createdAt', 'DESC']] // ✅ FIXED
+      order: [['createdAt', 'DESC']],
+      attributes: {
+        include: [
+          [
+            literal(`
+                CASE
+                WHEN expiry_date < CURDATE() THEN 'expired'
+                WHEN expiry_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+                  THEN 'expiring_soon'
+                WHEN stock_quantity = 0 THEN 'out_of_stock'
+                WHEN stock_quantity <= 20 THEN 'low_stock'
+                ELSE 'in_stock'
+              END
+            `),
+            'status'
+          ]
+        ]
+      }
     });
 
-    /* 📊 Dashboard summary (image-based cards support) */
+    /* 📊 Dashboard summary */
     const summary = await Inventory.findOne({
       where: { user_id: req.user.id },
       attributes: [
@@ -219,7 +245,7 @@ exports.filterProducts = async (req, res) => {
         [
           fn(
             'SUM',
-            literal('CASE WHEN stock_quantity BETWEEN 1 AND 10 THEN 1 ELSE 0 END')
+            literal('CASE WHEN stock_quantity BETWEEN 1 AND 20 THEN 1 ELSE 0 END')
           ),
           'low_stock_items'
         ],
@@ -229,6 +255,18 @@ exports.filterProducts = async (req, res) => {
             literal('CASE WHEN expiry_date < CURDATE() THEN 1 ELSE 0 END')
           ),
           'expired_items'
+        ],
+        [
+          fn(
+            'SUM',
+            literal(`
+              CASE
+                WHEN expiry_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+                THEN 1 ELSE 0
+              END
+            `)
+          ),
+          'expiring_soon_items'
         ]
       ],
       raw: true
@@ -237,13 +275,15 @@ exports.filterProducts = async (req, res) => {
     res.json({
       success: true,
 
-      /* list */
+      /* pagination */
       total: count,
       page: parseInt(page),
       limit: parseInt(limit),
+
+      /* product list */
       data: rows,
 
-      /* extra for UI */
+      /* UI helpers */
       meta: {
         categories: PHARMACY_CATEGORIES,
         stock_status: STOCK_STATUS
