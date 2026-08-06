@@ -19,3 +19,4 @@ router.delete('/delete/:id', auth, c.deleteSupplier);
 router.post('/status/:id', auth, c.updateSupplierStatus);
 
 module.exports = router;
+
